@@ -11,7 +11,6 @@ interface Props {
   isNoSpend: boolean
   categoriesById: Map<string, Category>
   currency: string
-  onAdd(date: string): void
   onEdit(expense: Expense): void
   onMarkNoSpend(date: string): void
   onUnmarkNoSpend(date: string): void
@@ -24,7 +23,6 @@ export function ExpenseList({
   isNoSpend,
   categoriesById,
   currency,
-  onAdd,
   onEdit,
   onMarkNoSpend,
   onUnmarkNoSpend,
@@ -53,29 +51,25 @@ export function ExpenseList({
         </ul>
       ) : isNoSpend ? (
         <div className="day-empty is-no-spend">
-          <span>
-            <span aria-hidden="true">🌿</span> No-spend day
-          </span>
-          <div className="day-actions">
-            <button type="button" className="pill-button" onClick={() => onAdd(date)}>
-              Add expense
-            </button>
-            <button type="button" className="text-button" onClick={() => onUnmarkNoSpend(date)}>
-              Unmark
-            </button>
+          <div className="day-empty-art" aria-hidden="true">
+            🌿
           </div>
+          <p className="day-empty-title">No-spend day</p>
+          <p className="day-empty-hint">Nothing spent on this day.</p>
+          <button type="button" className="text-button" onClick={() => onUnmarkNoSpend(date)}>
+            Unmark
+          </button>
         </div>
       ) : (
         <div className="day-empty">
-          <span>Nothing here yet</span>
-          <div className="day-actions">
-            <button type="button" className="pill-button" onClick={() => onAdd(date)}>
-              Add expense
-            </button>
-            <button type="button" className="pill-button" onClick={() => onMarkNoSpend(date)}>
-              Mark as no-spend day
-            </button>
+          <div className="day-empty-art" aria-hidden="true">
+            <PebblesArt />
           </div>
+          <p className="day-empty-title">Nothing here yet</p>
+          <p className="day-empty-hint">Add an expense with +, or mark this as a no-spend day.</p>
+          <button type="button" className="primary-button" onClick={() => onMarkNoSpend(date)}>
+            Mark as no-spend day
+          </button>
         </div>
       )}
     </section>
@@ -101,5 +95,16 @@ function ExpenseRow({ expense, category, currency, onEdit }: ExpenseRowProps) {
       </span>
       <span className="expense-amount">{formatAmount(expense.amount, currency)}</span>
     </button>
+  )
+}
+
+/** A small stack of pebbles: calm, and neutral about whether money was spent. */
+function PebblesArt() {
+  return (
+    <svg viewBox="0 0 48 48" width="52" height="52" fill="currentColor" opacity="0.55">
+      <ellipse cx="24" cy="38" rx="16" ry="6" />
+      <ellipse cx="24" cy="26.5" rx="11" ry="5" />
+      <ellipse cx="24" cy="16.5" rx="7" ry="4" />
+    </svg>
   )
 }

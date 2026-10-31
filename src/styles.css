@@ -185,13 +185,27 @@ h2 {
 
 /* Expense list */
 
+/* Column layout so the selected day can stretch to the bottom of the screen. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
 main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 16px calc(env(safe-area-inset-bottom) + 112px);
 }
 
 .day {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   margin-top: 20px;
 }
 
@@ -261,40 +275,57 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
+/* Empty and no-spend states fill the space left below the header. */
 .day-empty {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.day-empty p {
+  margin: 0;
+}
+
+.day-empty-art {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--muted);
+  font-size: 2.75rem;
+}
+
+.day-empty.is-no-spend .day-empty-art {
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg));
+}
+
+.day-empty-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.day-empty-hint {
+  max-width: 280px;
   color: var(--muted);
 }
 
-.day-empty.is-no-spend {
-  border: 1px solid transparent;
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-  color: var(--text);
-}
-
-.day-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.day-actions .text-button {
-  min-height: 36px;
-}
-
-.pill-button {
-  flex: none;
-  padding: 8px 14px;
+.primary-button {
+  margin-top: 12px;
+  min-height: 48px;
+  padding: 0 24px;
   border: 0;
   border-radius: 999px;
-  background: var(--chip);
-  font-size: 0.9rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
 }
 
 /* Floating add button */

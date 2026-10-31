@@ -74,8 +74,8 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 - Shows the selected day only: a heading (e.g. "Today · Oct 31") and that day's expenses, newest first.
 - Each expense row: category (emoji + name), note if present, amount.
 - **No daily or weekly totals anywhere.**
-- A day with no expenses shows an empty state with two actions: "Add expense" and "Mark as no-spend day".
-- A no-spend day shows a small positive message, plus "Add expense" and an option to unmark it.
+- A day with no expenses shows an empty state that fills the space below the strip, with "Mark as no-spend day" as its main action. Adding an expense is done with the floating add button, so the empty state has no add button of its own.
+- A no-spend day shows a small positive message in the same space, and an option to unmark it. Adding an expense with the add button also unmarks it.
 - After saving an expense (or undoing a delete), its date becomes the selected day.
 
 **Add button**

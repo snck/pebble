@@ -95,7 +95,6 @@ export default function App() {
             isNoSpend={noSpendDates.has(selectedDate)}
             categoriesById={categories.byId}
             currency={settings.currency}
-            onAdd={(date) => sheetRef.current?.open({ mode: 'add', date })}
             onEdit={(expense) => sheetRef.current?.open({ mode: 'edit', expense })}
             onMarkNoSpend={(date) => void markNoSpend(date, today)}
             onUnmarkNoSpend={(date) => void unmarkNoSpend(date)}
