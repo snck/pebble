@@ -61,19 +61,88 @@ h2 {
   font-size: inherit;
 }
 
-/* Week navigation */
+html {
+  scroll-behavior: smooth;
+}
 
-.week-nav {
+/* Week header: navigation + calendar strip */
+
+.week-header {
   position: sticky;
   top: 0;
   z-index: 10;
+  padding-top: env(safe-area-inset-top);
+  background: var(--bg);
+}
+
+.week-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: calc(env(safe-area-inset-top) + 8px) 8px 8px;
-  background: var(--bg);
+  padding: 8px 8px 0;
+}
+
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 4px 12px 8px;
+}
+
+.strip-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.strip-day:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.strip-weekday {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.strip-date {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-day.is-today .strip-date {
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.strip-mark {
+  display: grid;
+  place-items: center;
+  height: 14px;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.strip-day.state-logged .strip-mark::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .week-label {
@@ -117,7 +186,8 @@ main {
 
 .day {
   margin-top: 20px;
-  scroll-margin-top: 72px;
+  /* Clears the sticky week header when scrolled to from the strip. */
+  scroll-margin-top: calc(env(safe-area-inset-top) + 152px);
 }
 
 .day-heading {
@@ -188,13 +258,29 @@ main {
 
 .day-empty {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 14px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
   border: 1px dashed var(--line);
   border-radius: var(--radius);
   color: var(--muted);
+}
+
+.day-empty.is-no-spend {
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--text);
+}
+
+.day-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-actions .text-button {
+  min-height: 36px;
 }
 
 .pill-button {
@@ -397,6 +483,10 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .sheet,
   .backdrop {
     transition: none;

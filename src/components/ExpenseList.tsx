@@ -2,14 +2,20 @@ import type { Category, Expense } from '../db/types'
 import { formatDate, relativeDayName, visibleDays } from '../lib/dates'
 import { formatAmount } from '../lib/money'
 
-interface Props {
+interface DayActions {
+  onAdd(date: string): void
+  onEdit(expense: Expense): void
+  onMarkNoSpend(date: string): void
+  onUnmarkNoSpend(date: string): void
+}
+
+interface Props extends DayActions {
   weekStart: string
   today: string
   expenses: Expense[]
+  noSpendDates: Set<string>
   categoriesById: Map<string, Category>
   currency: string
-  onAdd(date: string): void
-  onEdit(expense: Expense): void
 }
 
 function groupByDate(expenses: Expense[]): Map<string, Expense[]> {
@@ -23,7 +29,7 @@ function groupByDate(expenses: Expense[]): Map<string, Expense[]> {
   return groups
 }
 
-export function ExpenseList({ weekStart, today, expenses, categoriesById, currency, onAdd, onEdit }: Props) {
+export function ExpenseList({ weekStart, today, expenses, noSpendDates, ...rest }: Props) {
   const byDate = groupByDate(expenses)
 
   return (
@@ -34,27 +40,35 @@ export function ExpenseList({ weekStart, today, expenses, categoriesById, curren
           date={date}
           today={today}
           expenses={byDate.get(date) ?? []}
-          categoriesById={categoriesById}
-          currency={currency}
-          onAdd={onAdd}
-          onEdit={onEdit}
+          isNoSpend={noSpendDates.has(date)}
+          {...rest}
         />
       ))}
     </div>
   )
 }
 
-interface DaySectionProps {
+interface DaySectionProps extends DayActions {
   date: string
   today: string
   expenses: Expense[]
+  isNoSpend: boolean
   categoriesById: Map<string, Category>
   currency: string
-  onAdd(date: string): void
-  onEdit(expense: Expense): void
 }
 
-function DaySection({ date, today, expenses, categoriesById, currency, onAdd, onEdit }: DaySectionProps) {
+function DaySection({
+  date,
+  today,
+  expenses,
+  isNoSpend,
+  categoriesById,
+  currency,
+  onAdd,
+  onEdit,
+  onMarkNoSpend,
+  onUnmarkNoSpend,
+}: DaySectionProps) {
   const relative = relativeDayName(date, today)
 
   return (
@@ -76,12 +90,31 @@ function DaySection({ date, today, expenses, categoriesById, currency, onAdd, on
             </li>
           ))}
         </ul>
+      ) : isNoSpend ? (
+        <div className="day-empty is-no-spend">
+          <span>
+            <span aria-hidden="true">🌿</span> No-spend day
+          </span>
+          <div className="day-actions">
+            <button type="button" className="pill-button" onClick={() => onAdd(date)}>
+              Add expense
+            </button>
+            <button type="button" className="text-button" onClick={() => onUnmarkNoSpend(date)}>
+              Unmark
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="day-empty">
           <span>Nothing here yet</span>
-          <button type="button" className="pill-button" onClick={() => onAdd(date)}>
-            Add expense
-          </button>
+          <div className="day-actions">
+            <button type="button" className="pill-button" onClick={() => onAdd(date)}>
+              Add expense
+            </button>
+            <button type="button" className="pill-button" onClick={() => onMarkNoSpend(date)}>
+              Mark as no-spend day
+            </button>
+          </div>
         </div>
       )}
     </section>

@@ -3,9 +3,17 @@ import { ExpenseList } from './components/ExpenseList'
 import { ExpenseSheet, type ExpenseSheetHandle } from './components/ExpenseSheet'
 import { UndoToast } from './components/UndoToast'
 import { WeekNav } from './components/WeekNav'
-import { addExpense, deleteExpense, restoreExpense, updateExpense } from './db/repo'
+import { WeekStrip } from './components/WeekStrip'
+import {
+  addExpense,
+  deleteExpense,
+  markNoSpend,
+  restoreExpense,
+  unmarkNoSpend,
+  updateExpense,
+} from './db/repo'
 import type { Expense, ExpenseInput } from './db/types'
-import { useCategories, useSettings, useWeekExpenses } from './hooks/data'
+import { useCategories, useSettings, useWeekExpenses, useWeekNoSpend } from './hooks/data'
 import { useToday } from './hooks/useToday'
 import { addDays, isInWeek, startOfWeek } from './lib/dates'
 
@@ -17,6 +25,7 @@ export default function App() {
   const sheetRef = useRef<ExpenseSheetHandle>(null)
 
   const expenses = useWeekExpenses(weekStart)
+  const noSpendDates = useWeekNoSpend(weekStart)
   const categories = useCategories()
   const settings = useSettings()
 
@@ -27,8 +36,17 @@ export default function App() {
     if (weekStart === startOfWeek(prevToday)) setWeekStart(startOfWeek(today))
   }
 
+  function goToWeek(start: string) {
+    setWeekStart(start)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+
   function showDate(date: string) {
-    if (!isInWeek(date, weekStart)) setWeekStart(startOfWeek(date))
+    if (!isInWeek(date, weekStart)) goToWeek(startOfWeek(date))
+  }
+
+  function scrollToDay(date: string) {
+    document.getElementById(`day-${date}`)?.scrollIntoView({ block: 'start' })
   }
 
   async function handleSave(input: ExpenseInput, id?: string) {
@@ -53,25 +71,41 @@ export default function App() {
 
   if (!categories || !settings) return null
 
+  const weekLoaded = expenses && noSpendDates
+
   return (
     <>
-      <WeekNav
-        weekStart={weekStart}
-        today={today}
-        onPrev={() => setWeekStart(addDays(weekStart, -7))}
-        onNext={() => setWeekStart(addDays(weekStart, 7))}
-      />
+      <header className="week-header">
+        <WeekNav
+          weekStart={weekStart}
+          today={today}
+          onPrev={() => goToWeek(addDays(weekStart, -7))}
+          onNext={() => goToWeek(addDays(weekStart, 7))}
+        />
+        {weekLoaded && (
+          <WeekStrip
+            weekStart={weekStart}
+            today={today}
+            loggedDates={new Set(expenses.map((e) => e.date))}
+            noSpendDates={noSpendDates}
+            onSelect={scrollToDay}
+          />
+        )}
+      </header>
 
       <main>
-        {expenses && (
+        {weekLoaded && (
           <ExpenseList
             weekStart={weekStart}
             today={today}
             expenses={expenses}
+            noSpendDates={noSpendDates}
             categoriesById={categories.byId}
             currency={settings.currency}
             onAdd={(date) => sheetRef.current?.open({ mode: 'add', date })}
             onEdit={(expense) => sheetRef.current?.open({ mode: 'edit', expense })}
+            onMarkNoSpend={(date) => void markNoSpend(date, today)}
+            onUnmarkNoSpend={(date) => void unmarkNoSpend(date)}
           />
         )}
       </main>

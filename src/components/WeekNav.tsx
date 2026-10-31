@@ -12,7 +12,7 @@ export function WeekNav({ weekStart, today, onPrev, onNext }: Props) {
   const name = relativeWeekName(weekStart, today)
 
   return (
-    <header className="week-nav">
+    <div className="week-nav">
       <button type="button" className="icon-button" aria-label="Previous week" onClick={onPrev}>
         ‹
       </button>
@@ -29,6 +29,6 @@ export function WeekNav({ weekStart, today, onPrev, onNext }: Props) {
       >
         ›
       </button>
-    </header>
+    </div>
   )
 }
