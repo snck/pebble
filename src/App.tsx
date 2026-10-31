@@ -1,0 +1,103 @@
+import { useCallback, useRef, useState } from 'react'
+import { ExpenseList } from './components/ExpenseList'
+import { ExpenseSheet, type ExpenseSheetHandle } from './components/ExpenseSheet'
+import { UndoToast } from './components/UndoToast'
+import { WeekNav } from './components/WeekNav'
+import { addExpense, deleteExpense, restoreExpense, updateExpense } from './db/repo'
+import type { Expense, ExpenseInput } from './db/types'
+import { useCategories, useSettings, useWeekExpenses } from './hooks/data'
+import { useToday } from './hooks/useToday'
+import { addDays, isInWeek, startOfWeek } from './lib/dates'
+
+export default function App() {
+  const today = useToday()
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(today))
+  const [prevToday, setPrevToday] = useState(today)
+  const [deleted, setDeleted] = useState<Expense | null>(null)
+  const sheetRef = useRef<ExpenseSheetHandle>(null)
+
+  const expenses = useWeekExpenses(weekStart)
+  const categories = useCategories()
+  const settings = useSettings()
+
+  // If the app stays open past midnight into a new week, follow along when
+  // the user was looking at the current week.
+  if (today !== prevToday) {
+    setPrevToday(today)
+    if (weekStart === startOfWeek(prevToday)) setWeekStart(startOfWeek(today))
+  }
+
+  function showDate(date: string) {
+    if (!isInWeek(date, weekStart)) setWeekStart(startOfWeek(date))
+  }
+
+  async function handleSave(input: ExpenseInput, id?: string) {
+    if (id) await updateExpense(id, input)
+    else await addExpense(input)
+    showDate(input.date)
+  }
+
+  async function handleDelete(id: string) {
+    const expense = await deleteExpense(id)
+    if (expense) setDeleted(expense)
+  }
+
+  async function handleUndo() {
+    if (!deleted) return
+    setDeleted(null)
+    await restoreExpense(deleted)
+    showDate(deleted.date)
+  }
+
+  const dismissToast = useCallback(() => setDeleted(null), [])
+
+  if (!categories || !settings) return null
+
+  return (
+    <>
+      <WeekNav
+        weekStart={weekStart}
+        today={today}
+        onPrev={() => setWeekStart(addDays(weekStart, -7))}
+        onNext={() => setWeekStart(addDays(weekStart, 7))}
+      />
+
+      <main>
+        {expenses && (
+          <ExpenseList
+            weekStart={weekStart}
+            today={today}
+            expenses={expenses}
+            categoriesById={categories.byId}
+            currency={settings.currency}
+            onAdd={(date) => sheetRef.current?.open({ mode: 'add', date })}
+            onEdit={(expense) => sheetRef.current?.open({ mode: 'edit', expense })}
+          />
+        )}
+      </main>
+
+      <button
+        type="button"
+        className="fab"
+        aria-label="Add expense"
+        onClick={() => sheetRef.current?.open({ mode: 'add', date: today })}
+      >
+        +
+      </button>
+
+      {deleted && (
+        <UndoToast key={deleted.id} message="Expense deleted" onUndo={handleUndo} onDismiss={dismissToast} />
+      )}
+
+      <ExpenseSheet
+        ref={sheetRef}
+        categories={categories.active}
+        categoriesById={categories.byId}
+        currency={settings.currency}
+        today={today}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+    </>
+  )
+}
