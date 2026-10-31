@@ -55,6 +55,8 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 
 ## Screens
 
+A bottom tab bar switches between screens (Week, Report; Settings joins in milestone 4). Each screen has its own URL hash so the back gesture works and the installed app reopens where it was. Each screen keeps its place (selected day, month, fixed-cost toggle) while switching tabs.
+
 ### 1. Main screen — This week
 
 **Week calendar strip (top, sticky)**
@@ -82,7 +84,7 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 - After saving an expense (or undoing a delete), its date becomes the selected day.
 
 **Add button**
-- Floating action button, always visible.
+- Floating action button, always visible on this screen (above the tab bar).
 
 ### 2. Add / edit expense sheet
 
@@ -99,13 +101,15 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 ### 3. Report screen — Where is my money going?
 
 - Month selector (default: current month; can go back to past months).
-- **Horizontal bars**, one per category, sorted largest share first, labeled with percentage.
+- **Horizontal bars**, one per category, sorted largest share first, labeled with percentage. Bar length is the share of 100%.
+- Percentages are whole numbers that always add up to 100% (largest-remainder rounding). A non-zero share that rounds to 0 shows as "<1%".
 - **No grand total.** Category amounts are not shown on the bars.
 - Fixed categories are **excluded by default**. A toggle "Include fixed costs" adds them back in.
-- Show entry count under the chart: "Based on N expenses", so a lopsided chart early in the month reads as early data.
+- Show entry count under the chart: "Based on N expenses", so a lopsided chart early in the month reads as early data. The count covers only what the chart includes (so it changes with the fixed-cost toggle).
 - **vs last month**: when the previous month has data, show the change in share per category in percentage points (e.g. "45% · up from 32%"). Hide when there's no previous-month data.
-- Tapping a category opens a list of that month's expenses in that category (individual amounts OK, no sum).
-- Empty month: a friendly empty state, no chart.
+- Tapping a category opens a read-only bottom sheet listing that month's expenses in that category, newest first (individual amounts OK, no sum).
+- Previous/next month by arrows or by swiping; cannot go past the current month. The fixed-cost toggle starts off each time the app opens.
+- Empty month: a friendly empty state, no chart. A month with only fixed costs (while they're hidden) shows a hint to turn on "Include fixed costs".
 
 ### 4. Settings
 

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   addDays,
+  addMonths,
+  endOfMonth,
+  formatMonth,
+  isCurrentMonth,
+  monthOf,
+  relativeMonthName,
+  startOfMonth,
   fromISO,
   isCurrentWeek,
   isFuture,
@@ -138,5 +145,42 @@ describe('msUntilNextDay', () => {
 
   it('accounts for a 25-hour day when clocks go back', () => {
     expect(msUntilNextDay(new Date(2026, 9, 25, 0, 0))).toBe(25 * 60 * 60 * 1000)
+  })
+})
+
+describe('months', () => {
+  it('derives the month of a date', () => {
+    expect(monthOf('2026-10-31')).toBe('2026-10')
+  })
+
+  it('finds month boundaries, including leap-year February', () => {
+    expect(startOfMonth('2026-10')).toBe('2026-10-01')
+    expect(endOfMonth('2026-10')).toBe('2026-10-31')
+    expect(endOfMonth('2026-11')).toBe('2026-11-30')
+    expect(endOfMonth('2026-02')).toBe('2026-02-28')
+    expect(endOfMonth('2028-02')).toBe('2028-02-29')
+    expect(endOfMonth('2026-12')).toBe('2026-12-31')
+    // Month containing a DST change (Europe/London, 29 Mar 2026).
+    expect(endOfMonth('2026-03')).toBe('2026-03-31')
+  })
+
+  it('adds months across year boundaries', () => {
+    expect(addMonths('2026-10', -1)).toBe('2026-09')
+    expect(addMonths('2026-01', -1)).toBe('2025-12')
+    expect(addMonths('2026-12', 1)).toBe('2027-01')
+    expect(addMonths('2026-10', -14)).toBe('2025-08')
+  })
+
+  it('names this month and last month only', () => {
+    expect(isCurrentMonth('2026-10', '2026-10-31')).toBe(true)
+    expect(isCurrentMonth('2026-09', '2026-10-31')).toBe(false)
+    expect(relativeMonthName('2026-10', '2026-10-31')).toBe('This month')
+    expect(relativeMonthName('2026-09', '2026-10-01')).toBe('Last month')
+    expect(relativeMonthName('2025-12', '2026-01-15')).toBe('Last month')
+    expect(relativeMonthName('2026-08', '2026-10-31')).toBeNull()
+  })
+
+  it('formats a month label', () => {
+    expect(formatMonth('2026-10', 'en-US')).toBe('October 2026')
   })
 })

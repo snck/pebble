@@ -1,18 +1,34 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { getSettings, listCategories, listExpensesBetween, listNoSpendBetween } from '../db/repo'
 import type { Category, Expense, Settings } from '../db/types'
-import { weekEnd } from '../lib/dates'
+import { endOfMonth, startOfMonth, weekEnd } from '../lib/dates'
+
+/**
+ * A live query whose result is tagged with the period it was fetched for.
+ * useLiveQuery keeps returning the previous result while a new one loads, so
+ * without this a screen would briefly show last week's (or month's) data
+ * under the new heading.
+ */
+function useLiveQueryFor<T>(period: string, query: () => Promise<T>): T | undefined {
+  const result = useLiveQuery(async () => ({ period, value: await query() }), [period])
+  return result?.period === period ? result.value : undefined
+}
 
 /** All expenses in the week starting `weekStart`; undefined while loading. */
 export function useWeekExpenses(weekStart: string): Expense[] | undefined {
-  return useLiveQuery(() => listExpensesBetween(weekStart, weekEnd(weekStart)), [weekStart])
+  return useLiveQueryFor(weekStart, () => listExpensesBetween(weekStart, weekEnd(weekStart)))
 }
 
-/** Dates marked as no-spend in the week starting `weekStart`. */
+/** All expenses in a `YYYY-MM` month; undefined while loading. */
+export function useMonthExpenses(month: string): Expense[] | undefined {
+  return useLiveQueryFor(month, () => listExpensesBetween(startOfMonth(month), endOfMonth(month)))
+}
+
+/** Dates marked as no-spend in the week starting `weekStart`; undefined while loading. */
 export function useWeekNoSpend(weekStart: string): Set<string> | undefined {
-  return useLiveQuery(
+  return useLiveQueryFor(
+    weekStart,
     async () => new Set((await listNoSpendBetween(weekStart, weekEnd(weekStart))).map((d) => d.date)),
-    [weekStart],
   )
 }
 

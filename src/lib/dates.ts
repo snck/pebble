@@ -94,3 +94,40 @@ export function formatWeekRange(weekStart: string, locale?: string): string {
     fromISO(weekEnd(weekStart)),
   )
 }
+
+// Months are `YYYY-MM` strings.
+
+export function monthOf(iso: string): string {
+  return iso.slice(0, 7)
+}
+
+export function startOfMonth(month: string): string {
+  return `${month}-01`
+}
+
+export function endOfMonth(month: string): string {
+  const first = fromISO(startOfMonth(month))
+  // Day 0 of the next month is the last day of this one.
+  return toISO(new Date(first.getFullYear(), first.getMonth() + 1, 0, 12))
+}
+
+export function addMonths(month: string, n: number): string {
+  const first = fromISO(startOfMonth(month))
+  return monthOf(toISO(new Date(first.getFullYear(), first.getMonth() + n, 1, 12)))
+}
+
+export function isCurrentMonth(month: string, today: string): boolean {
+  return month === monthOf(today)
+}
+
+export function relativeMonthName(month: string, today: string): string | null {
+  const current = monthOf(today)
+  if (month === current) return 'This month'
+  if (month === addMonths(current, -1)) return 'Last month'
+  return null
+}
+
+/** e.g. "October 2026". */
+export function formatMonth(month: string, locale?: string): string {
+  return formatDate(startOfMonth(month), { month: 'long', year: 'numeric' }, locale)
+}
