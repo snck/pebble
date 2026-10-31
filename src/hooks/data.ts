@@ -35,6 +35,8 @@ export function useWeekNoSpend(weekStart: string): Set<string> | undefined {
 export interface Categories {
   /** Non-archived, in display order: what the add sheet offers. */
   active: Category[]
+  /** Archived, in display order. */
+  archived: Category[]
   /** Every category, archived included, so old expenses always resolve. */
   byId: Map<string, Category>
 }
@@ -42,7 +44,11 @@ export interface Categories {
 export function useCategories(): Categories | undefined {
   return useLiveQuery(async () => {
     const all = await listCategories()
-    return { active: all.filter((c) => !c.archived), byId: new Map(all.map((c) => [c.id, c])) }
+    return {
+      active: all.filter((c) => !c.archived),
+      archived: all.filter((c) => c.archived),
+      byId: new Map(all.map((c) => [c.id, c])),
+    }
   })
 }
 

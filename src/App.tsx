@@ -5,6 +5,7 @@ import { useHashRoute } from './hooks/useHashRoute'
 import { useToday } from './hooks/useToday'
 import { monthOf } from './lib/dates'
 import { ReportScreen } from './screens/ReportScreen'
+import { SettingsScreen } from './screens/SettingsScreen'
 import { WeekScreen } from './screens/WeekScreen'
 
 export default function App() {
@@ -31,7 +32,9 @@ export default function App() {
 
   return (
     <>
-      {route === 'report' ? (
+      {route === 'settings' ? (
+        <SettingsScreen categories={categories} settings={settings} />
+      ) : route === 'report' ? (
         <ReportScreen
           today={today}
           month={month}

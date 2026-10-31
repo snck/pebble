@@ -107,6 +107,8 @@ A bottom tab bar switches between screens (Week, Report; Settings joins in miles
 - Fixed categories are **excluded by default**. A toggle "Include fixed costs" adds them back in.
 - Show entry count under the chart: "Based on N expenses", so a lopsided chart early in the month reads as early data. The count covers only what the chart includes (so it changes with the fixed-cost toggle).
 - **vs last month**: when the previous month has data, show the change in share per category in percentage points (e.g. "45% · up from 32%"). Hide when there's no previous-month data.
+  - Compares the displayed (rounded) percentages, under the same fixed-cost setting: "up from 32%", "down from 50%", "same as last month", or "new this month" for a category with no spending last month.
+  - Shown in muted text, never red/green or arrows: a share going up is information, not a warning.
 - Tapping a category opens a read-only bottom sheet listing that month's expenses in that category, newest first (individual amounts OK, no sum).
 - Previous/next month by arrows or by swiping; cannot go past the current month. The fixed-cost toggle starts off each time the app opens.
 - Empty month: a friendly empty state, no chart. A month with only fixed costs (while they're hidden) shows a hint to turn on "Include fixed costs".
@@ -114,8 +116,15 @@ A bottom tab bar switches between screens (Week, Report; Settings joins in miles
 ### 4. Settings
 
 - Manage categories (rename, emoji, reorder, add, archive, toggle fixed).
-- Currency.
+  - Tap a category to edit it in a sheet (name, single emoji, fixed toggle, archive). "+ Add category" uses the same sheet.
+  - Names are trimmed, required, and unique among active categories (case-insensitive).
+  - Reorder mode shows up/down buttons on each row.
+  - Archived categories are listed under a collapsed "Archived (n)" section with Restore (restored to the end of the list). The last active category can't be archived.
+  - Fixed is a category property, so changing it applies to all months' reports.
+- Currency: searchable list of currencies known to the browser. Amounts aren't converted; they keep the numbers the user typed, so when the new currency has a different number of decimals the stored minor units are rescaled (moving to a currency without decimals rounds).
 - **Export / import** all data as JSON (backup, since data lives on the device).
+  - Export: `pebble-backup-YYYY-MM-DD.json` with an app marker, format version, timestamp and all data. Opens the share sheet on phones, downloads elsewhere.
+  - Import: the whole file is validated before anything is written; a bad file changes nothing and says why. A valid file **replaces** all data after a confirm sheet (the app's only confirm; it can't be undone) that offers "Export current data first".
 
 ---
 
@@ -126,7 +135,8 @@ A bottom tab bar switches between screens (Week, Report; Settings joins in miles
 - **PWA** (vite-plugin-pwa) so it installs to the phone's home screen
 - Mobile-first layout; must feel good one-handed on a phone
 - Format amounts with `Intl.NumberFormat` using the currency setting
-- Static hosting (Vercel, Netlify, or GitHub Pages)
+- Static hosting (Vercel, Netlify, or GitHub Pages). Deployed on Netlify (`netlify.toml`); the build uses relative URLs and hash routing, so it also works from a subfolder with no rewrites.
+- App updates install in the background and take effect the next time the app is opened, so an update never reloads the page mid-entry.
 
 Trade-off: local-only storage means data doesn't sync between devices. Export/import covers backup. Sync (e.g. Supabase) is out of scope for v1.
 

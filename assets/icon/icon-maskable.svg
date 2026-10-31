@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed for OS masks (maskable / Apple touch icon); artwork kept inside the 80% safe zone. -->
+  <rect width="512" height="512" fill="#3f7d6e"/>
+  <g fill="#f6f4ef" transform="translate(256 260) scale(0.72) translate(-256 -260)">
+    <ellipse cx="256" cy="340" rx="130" ry="48"/>
+    <ellipse cx="256" cy="244" rx="92" ry="40"/>
+    <ellipse cx="256" cy="164" rx="58" ry="32"/>
+  </g>
+</svg>

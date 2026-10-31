@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Category, Expense } from '../db/types'
-import { computeReport, largestRemainder } from './report'
+import { compareShares, computeReport, largestRemainder } from './report'
 
 const cat = (id: string, order: number, isFixed = false, archived = false): Category => ({
   id,
@@ -111,5 +111,37 @@ describe('computeReport', () => {
     expect(json).not.toContain('1234')
     expect(json).not.toContain('5678')
     expect(json).not.toContain('6912')
+  })
+})
+
+describe('compareShares', () => {
+  const report = (pairs: Array<[string, number]>, includeFixed = false) =>
+    computeReport(pairs.map(([c, a]) => exp(c, a)), categories, includeFixed)
+
+  it('describes each change in share against last month', () => {
+    const previous = report([['food', 32], ['transport', 50], ['fun', 18]])
+    const current = report([['food', 45], ['transport', 37], ['fun', 18]])
+    expect(Object.fromEntries(compareShares(current, previous))).toEqual({
+      food: 'up from 32%',
+      transport: 'down from 50%',
+      fun: 'same as last month',
+    })
+  })
+
+  it('marks categories that had no spending last month', () => {
+    const notes = compareShares(report([['food', 1], ['old', 1]]), report([['food', 1]]))
+    expect(notes.get('old')).toBe('new this month')
+  })
+
+  it('compares tiny shares by their labels', () => {
+    const previous = report([['food', 100000], ['fun', 100]])
+    const current = report([['food', 90], ['fun', 10]])
+    expect(compareShares(current, previous).get('fun')).toBe('up from <1%')
+  })
+
+  it('says nothing when last month has no data under the same settings', () => {
+    expect(compareShares(report([['food', 1]]), report([])).size).toBe(0)
+    // Last month only had fixed costs, which are hidden.
+    expect(compareShares(report([['food', 1]]), report([['rent', 1]])).size).toBe(0)
   })
 })

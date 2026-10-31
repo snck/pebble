@@ -6,7 +6,7 @@ import type { Category, Settings } from '../db/types'
 import { useMonthExpenses } from '../hooks/data'
 import { useHorizontalSwipe } from '../hooks/useHorizontalSwipe'
 import { addMonths, formatMonth, isCurrentMonth, relativeMonthName } from '../lib/dates'
-import { computeReport, type ReportRow } from '../lib/report'
+import { compareShares, computeReport, type ReportRow } from '../lib/report'
 
 interface Props {
   today: string
@@ -28,6 +28,7 @@ export function ReportScreen({
   settings,
 }: Props) {
   const expenses = useMonthExpenses(month)
+  const previousExpenses = useMonthExpenses(addMonths(month, -1))
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null)
 
   const canNext = !isCurrentMonth(month, today)
@@ -45,6 +46,8 @@ export function ReportScreen({
   const label = formatMonth(month)
   const relative = relativeMonthName(month, today)
   const report = expenses && computeReport(expenses, categoriesById, includeFixed)
+  const previousReport = previousExpenses && computeReport(previousExpenses, categoriesById, includeFixed)
+  const changes = report && previousReport ? compareShares(report, previousReport) : new Map<string, string>()
   const openRow = report?.rows.find((r) => r.category.id === openCategoryId)
 
   return (
@@ -82,7 +85,11 @@ export function ReportScreen({
               <ul className="report-bars">
                 {report.rows.map((row) => (
                   <li key={row.category.id}>
-                    <ReportBar row={row} onOpen={() => setOpenCategoryId(row.category.id)} />
+                    <ReportBar
+                      row={row}
+                      change={changes.get(row.category.id)}
+                      onOpen={() => setOpenCategoryId(row.category.id)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -116,22 +123,32 @@ export function ReportScreen({
   )
 }
 
-function ReportBar({ row, onOpen }: { row: ReportRow; onOpen(): void }) {
+interface ReportBarProps {
+  row: ReportRow
+  /** e.g. "up from 32%"; absent when there's nothing to compare with. */
+  change?: string
+  onOpen(): void
+}
+
+function ReportBar({ row, change, onOpen }: ReportBarProps) {
   const { category, label, fraction } = row
   return (
     <button
       type="button"
       className="report-row"
-      aria-label={`${category.name}, ${label} of spending. Show expenses`}
+      aria-label={`${category.name}, ${label} of spending${change ? `, ${change}` : ''}. Show expenses`}
       onClick={onOpen}
     >
       <span className="report-row-top">
         <span className="report-category">
           {category.emoji && <span aria-hidden="true">{category.emoji}</span>}
-          {category.name}
+          <span className="report-name">{category.name}</span>
           {category.isFixed && <span className="report-tag">Fixed</span>}
         </span>
-        <span className="report-percent">{label}</span>
+        <span className="report-percent">
+          {label}
+          {change && <span className="report-change"> · {change}</span>}
+        </span>
       </span>
       <span className="report-track" aria-hidden="true">
         <span className="report-fill" style={{ width: `${fraction * 100}%` }} />

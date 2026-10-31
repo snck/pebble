@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Pebble app icon: a calm stack of pebbles on the accent colour. -->
+  <rect width="512" height="512" rx="112" fill="#3f7d6e"/>
+  <g fill="#f6f4ef">
+    <ellipse cx="256" cy="340" rx="130" ry="48"/>
+    <ellipse cx="256" cy="244" rx="92" ry="40"/>
+    <ellipse cx="256" cy="164" rx="58" ry="32"/>
+  </g>
+</svg>

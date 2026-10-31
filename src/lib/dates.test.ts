@@ -12,6 +12,7 @@ import {
   isCurrentWeek,
   isFuture,
   isInWeek,
+  isValidISODate,
   msUntilNextDay,
   relativeDayName,
   relativeWeekName,
@@ -182,5 +183,18 @@ describe('months', () => {
 
   it('formats a month label', () => {
     expect(formatMonth('2026-10', 'en-US')).toBe('October 2026')
+  })
+})
+
+describe('isValidISODate', () => {
+  it('accepts real dates only', () => {
+    expect(isValidISODate('2026-10-31')).toBe(true)
+    expect(isValidISODate('2028-02-29')).toBe(true)
+    expect(isValidISODate('2026-02-29')).toBe(false)
+    expect(isValidISODate('2026-02-30')).toBe(false)
+    expect(isValidISODate('2026-13-01')).toBe(false)
+    expect(isValidISODate('2026-1-01')).toBe(false)
+    expect(isValidISODate('2026-10-31T00:00')).toBe(false)
+    expect(isValidISODate(20261031)).toBe(false)
   })
 })

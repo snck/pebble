@@ -17,6 +17,11 @@ export function fromISO(iso: string): Date {
   return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12)
 }
 
+/** True for a `YYYY-MM-DD` string naming a real calendar date (not 2026-02-30). */
+export function isValidISODate(value: unknown): value is string {
+  return typeof value === 'string' && ISO_RE.test(value) && toISO(fromISO(value)) === value
+}
+
 export function todayISO(now: Date = new Date()): string {
   return toISO(now)
 }

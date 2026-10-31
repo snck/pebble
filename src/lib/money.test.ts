@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmount, fractionDigits, parseAmount, toAmountInput } from './money'
+import { formatAmount, fractionDigits, parseAmount, rescaleMinor, toAmountInput } from './money'
 
 describe('fractionDigits', () => {
   it('reads minor-unit digits from Intl', () => {
@@ -63,5 +63,20 @@ describe('formatAmount', () => {
   it('formats minor units with the currency', () => {
     expect(formatAmount(1250, 'USD', 'en-US')).toBe('$12.50')
     expect(formatAmount(1500, 'JPY', 'en-US')).toBe('¥1,500')
+  })
+})
+
+describe('rescaleMinor', () => {
+  it('keeps the typed number when decimals change', () => {
+    expect(rescaleMinor(150000, 2, 0)).toBe(1500) // 1,500.00 -> 1,500
+    expect(rescaleMinor(1500, 0, 2)).toBe(150000) // 1,500 -> 1,500.00
+    expect(rescaleMinor(1250, 2, 2)).toBe(1250)
+    expect(rescaleMinor(12345, 3, 2)).toBe(1235)
+  })
+
+  it('rounds when dropping decimals, but never to zero', () => {
+    expect(rescaleMinor(1250, 2, 0)).toBe(13)
+    expect(rescaleMinor(1249, 2, 0)).toBe(12)
+    expect(rescaleMinor(5, 2, 0)).toBe(1)
   })
 })

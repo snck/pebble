@@ -38,3 +38,10 @@ export interface ExpenseInput {
   date: string
   note?: string
 }
+
+/** The editable fields of a category. */
+export interface CategoryInput {
+  name: string
+  emoji?: string
+  isFixed: boolean
+}

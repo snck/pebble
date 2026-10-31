@@ -567,6 +567,203 @@ main {
   cursor: default;
 }
 
+/* Forms */
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.emoji-field {
+  flex: none;
+  width: 72px;
+}
+
+.emoji-field .text-input {
+  text-align: center;
+  font-size: 1.4rem;
+  padding: 4px 8px;
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* 16px minimum stops iOS from zooming in on focus. */
+.text-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 16px;
+}
+
+/* Informative, not alarming: no red, in keeping with the rest of the app. */
+.form-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--chip);
+  font-size: 0.9rem;
+}
+
+.switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 12px;
+}
+
+/* Settings */
+
+.screen-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: var(--max-width);
+  min-height: 52px;
+  margin: 0 auto;
+  padding-top: 8px;
+}
+
+.screen-title-bar h1 {
+  margin: 0;
+}
+
+.settings-section {
+  margin-top: 16px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+
+.section-head h2 {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.section-head .text-button {
+  min-width: 0;
+  padding: 0;
+}
+
+.settings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.settings-list > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 4px 6px 4px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+button.settings-row:active {
+  background: var(--chip);
+}
+
+.settings-row-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.settings-row-emoji {
+  width: 1.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.settings-row-detail {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.settings-row-chevron,
+.settings-row-check {
+  width: 24px;
+  color: var(--muted);
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.settings-row-check {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.settings-row-add {
+  color: var(--accent);
+}
+
+.settings-row-empty {
+  color: var(--muted);
+}
+
+.archived {
+  margin-top: 12px;
+}
+
+.archived summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.section-note {
+  margin: 8px 4px 12px;
+}
+
+.confirm-text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sheet-form .primary-button {
+  margin-top: 4px;
+}
+
 /* Tab bar */
 
 .tab-bar {
@@ -589,7 +786,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  max-width: calc(var(--max-width) / 2);
+  max-width: calc(var(--max-width) / 3);
   height: var(--tabbar-h);
   color: var(--muted);
   font-size: 0.75rem;
@@ -710,6 +907,19 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
+/* Neutral on purpose: a share going up is information, not a warning. */
+.report-change {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.report-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .report-track {
   display: block;
   height: 10px;
@@ -734,24 +944,51 @@ main {
   font-size: 0.875rem;
 }
 
-/* Category drill-down sheet (mounted only while open, so it animates in on mount) */
+/* Sheets mounted only while open (see Sheet.tsx), so they animate in on mount */
 
-.category-sheet {
+.sheet:focus {
+  outline: none;
+}
+
+.tall-sheet {
   display: flex;
   flex-direction: column;
   max-height: 80dvh;
 }
 
-.category-sheet-month {
+.sheet-subtitle {
   margin: 0 0 12px;
   color: var(--muted);
   font-size: 0.875rem;
   text-align: center;
 }
 
-.category-sheet-list {
+.sheet-scroll {
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.sheet-note {
+  margin: 8px 0 12px;
+}
+
+.sheet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.sheet-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+
+.sheet-footer .text-button {
+  padding: 0;
 }
 
 .sheet.slide-in {

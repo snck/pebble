@@ -43,6 +43,8 @@ These exist because the app's whole purpose is to reduce spending anxiety. Never
 - `npm test`: run Vitest once (`npm run test:watch` for watch mode). Tests run with `TZ=Europe/London` so date logic hits DST transitions
 - `npm run lint`: oxlint
 - `npm run build`: typecheck + production build (outputs `dist/` with the PWA service worker)
-- `npm run preview`: serve the production build locally
+- `npm run preview`: serve the production build locally (use this, not `dev`, to test the service worker, offline mode and installability)
+- Deploy: Netlify, configured in `netlify.toml` (build `npm run build`, publish `dist`, Node 24). `npx netlify-cli deploy --build --prod` after `npx netlify-cli login`
+- App icons: SVG sources in `assets/icon/`. The PNGs in `public/` (192/512, maskable 512, Apple 180) were rendered from them once with headless Chrome; there's no script in the repo, so re-render them by hand if the SVGs change
 
 Before calling a milestone done: `npm run typecheck && npm test && npm run build`.

@@ -67,3 +67,13 @@ export function toAmountInput(minor: number, currency: string): string {
   const unit = 10 ** digits
   return `${Math.trunc(minor / unit)}.${String(minor % unit).padStart(digits, '0')}`
 }
+
+/**
+ * Re-expresses minor units for a currency with a different number of decimals,
+ * keeping the number the user typed: 150000 (1,500.00) at 2 digits becomes
+ * 1500 at 0 digits. Going to fewer digits rounds, and never below 1.
+ */
+export function rescaleMinor(minor: number, fromDigits: number, toDigits: number): number {
+  if (toDigits >= fromDigits) return minor * 10 ** (toDigits - fromDigits)
+  return Math.max(1, Math.round(minor / 10 ** (fromDigits - toDigits)))
+}

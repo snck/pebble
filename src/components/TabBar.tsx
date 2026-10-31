@@ -21,6 +21,17 @@ const TABS: Array<{ route: Route; label: string; icon: ReactNode }> = [
       </svg>
     ),
   },
+  {
+    route: 'settings',
+    label: 'Settings',
+    icon: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 7h9M19 7h1M4 17h3M13 17h7" strokeLinecap="round" />
+        <circle cx="16" cy="7" r="2.5" />
+        <circle cx="10" cy="17" r="2.5" />
+      </svg>
+    ),
+  },
 ]
 
 export function TabBar({ route }: { route: Route }) {

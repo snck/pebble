@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 
-export type Route = 'week' | 'report'
+export type Route = 'week' | 'report' | 'settings'
 
 export const ROUTE_HREF: Record<Route, string> = {
   week: '#/',
   report: '#/report',
+  settings: '#/settings',
 }
 
 function parse(hash: string): Route {
-  return hash === ROUTE_HREF.report ? 'report' : 'week'
+  if (hash === ROUTE_HREF.report) return 'report'
+  if (hash === ROUTE_HREF.settings) return 'settings'
+  return 'week'
 }
 
 /**

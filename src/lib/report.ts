@@ -93,3 +93,22 @@ export function computeReport(
     hiddenFixedCount,
   }
 }
+
+/**
+ * "vs last month" notes per category id, comparing the displayed percentages:
+ * "up from 32%", "down from 50%", "same as last month" or "new this month".
+ * Empty (show nothing) when last month has no data under the same settings.
+ */
+export function compareShares(current: Report, previous: Report): Map<string, string> {
+  const notes = new Map<string, string>()
+  if (previous.rows.length === 0) return notes
+  const before = new Map(previous.rows.map((r) => [r.category.id, r]))
+  for (const row of current.rows) {
+    const id = row.category.id
+    const prev = before.get(id)
+    if (!prev) notes.set(id, 'new this month')
+    else if (prev.percent === row.percent) notes.set(id, 'same as last month')
+    else notes.set(id, `${row.percent > prev.percent ? 'up' : 'down'} from ${prev.label}`)
+  }
+  return notes
+}
