@@ -83,21 +83,42 @@ h2 {
 .week-strip {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 4px 12px 8px;
+  /* No gaps and minimal side padding, so every pixel of the strip responds
+     and columns stay ≥ 44px wide even on a 320px-wide phone. */
+  padding: 4px 4px 8px;
 }
 
+/* Each button fills its whole column with square edges (rounded corners
+   aren't hit-testable), and the visible pill is drawn inside it by ::before,
+   so the entire column responds to a tap. */
 .strip-day {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 4px 0;
+  padding: 8px 0;
   border: 0;
-  border-radius: 12px;
   background: transparent;
+}
+
+.strip-day::before {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  z-index: -1;
+  border-radius: 16px;
+  transition:
+    background-color 120ms ease,
+    transform 80ms ease;
+}
+
+.strip-day:active:not(:disabled)::before {
+  background: var(--chip);
+  transform: scale(0.94);
 }
 
 .strip-day:disabled {
@@ -111,29 +132,42 @@ h2 {
 }
 
 .strip-date {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 2px solid transparent;
-  border-radius: 50%;
+  font-size: 1.15rem;
+  line-height: 1.6;
   font-variant-numeric: tabular-nums;
 }
 
+.strip-day.is-today::before {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
 .strip-day.is-today .strip-date {
-  border-color: var(--accent);
   font-weight: 600;
+}
+
+.strip-day.is-selected {
+  color: var(--accent-contrast);
+}
+
+.strip-day.is-selected::before,
+.strip-day.is-selected:active::before {
+  background: var(--accent);
+}
+
+.strip-day.is-selected .strip-weekday {
+  color: inherit;
+  opacity: 0.8;
 }
 
 .strip-day.is-selected .strip-date {
-  background: var(--accent);
-  color: var(--accent-contrast);
   font-weight: 600;
 }
 
-/* Selected today: a gap between the fill and the ring keeps both visible. */
-.strip-day.is-today.is-selected .strip-date {
-  box-shadow: inset 0 0 0 2px var(--bg);
+/* Selected today: a gap between the ring and the fill keeps both visible. */
+.strip-day.is-today.is-selected::before {
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    inset 0 0 0 4px var(--bg);
 }
 
 .strip-mark {
@@ -149,6 +183,10 @@ h2 {
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  background: currentColor;
+}
+
+.strip-day.state-logged:not(.is-selected) .strip-mark::after {
   background: var(--accent);
 }
 
@@ -176,6 +214,10 @@ h2 {
   background: transparent;
   font-size: 1.75rem;
   line-height: 1;
+}
+
+.icon-button:active:not(:disabled) {
+  background: var(--chip);
 }
 
 .icon-button:disabled {
