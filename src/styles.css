@@ -88,6 +88,7 @@ h2 {
   /* No gaps and minimal side padding, so every pixel of the strip responds
      and columns stay ≥ 44px wide even on a 320px-wide phone. */
   padding: 4px 4px 8px;
+  touch-action: pan-y;
 }
 
 /* Each button fills its whole column with square edges (rounded corners
@@ -232,9 +233,13 @@ h2 {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+  /* Content slides sideways during swipes; never let that scroll the page. */
+  overflow-x: clip;
 }
 
 main {
+  /* Horizontal swipes are handled in JS; vertical scrolling stays native. */
+  touch-action: pan-y;
   display: flex;
   flex: 1;
   flex-direction: column;

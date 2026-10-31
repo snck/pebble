@@ -1,7 +1,9 @@
+import type { Ref } from 'react'
 import { formatDate, weekDays } from '../lib/dates'
 import { dayState, type DayState } from '../lib/dayState'
 
 interface Props {
+  ref?: Ref<HTMLElement>
   weekStart: string
   today: string
   selectedDate: string
@@ -17,9 +19,9 @@ const STATE_LABEL: Record<DayState, string> = {
   unlogged: 'nothing logged',
 }
 
-export function WeekStrip({ weekStart, today, selectedDate, loggedDates, noSpendDates, onSelect }: Props) {
+export function WeekStrip({ ref, weekStart, today, selectedDate, loggedDates, noSpendDates, onSelect }: Props) {
   return (
-    <nav className="week-strip" aria-label="Days of the week">
+    <nav ref={ref} className="week-strip" aria-label="Days of the week">
       {weekDays(weekStart).map((date) => {
         const state = dayState(date, today, loggedDates.has(date), noSpendDates.has(date))
         const isToday = date === today

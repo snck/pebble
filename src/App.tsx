@@ -14,8 +14,9 @@ import {
 } from './db/repo'
 import type { Expense, ExpenseInput } from './db/types'
 import { useCategories, useSettings, useWeekExpenses, useWeekNoSpend } from './hooks/data'
+import { useHorizontalSwipe } from './hooks/useHorizontalSwipe'
 import { useToday } from './hooks/useToday'
-import { shiftWeeks, startOfWeek } from './lib/dates'
+import { addDays, isCurrentWeek, shiftWeeks, startOfWeek } from './lib/dates'
 
 export default function App() {
   const today = useToday()
@@ -61,6 +62,20 @@ export default function App() {
 
   const dismissToast = useCallback(() => setDeleted(null), [])
 
+  // Swipe the day content to move a day, or the strip to move a week.
+  const daySwipeRef = useHorizontalSwipe({
+    canNext: selectedDate < today,
+    canPrev: true,
+    onNext: () => selectDate(addDays(selectedDate, 1)),
+    onPrev: () => selectDate(addDays(selectedDate, -1)),
+  })
+  const weekSwipeRef = useHorizontalSwipe({
+    canNext: !isCurrentWeek(weekStart, today),
+    canPrev: true,
+    onNext: () => selectDate(shiftWeeks(selectedDate, 1, today)),
+    onPrev: () => selectDate(shiftWeeks(selectedDate, -1, today)),
+  })
+
   if (!categories || !settings) return null
 
   const weekLoaded = expenses && noSpendDates
@@ -76,6 +91,7 @@ export default function App() {
         />
         {weekLoaded && (
           <WeekStrip
+            ref={weekSwipeRef}
             weekStart={weekStart}
             today={today}
             selectedDate={selectedDate}
@@ -86,7 +102,7 @@ export default function App() {
         )}
       </header>
 
-      <main>
+      <main ref={daySwipeRef}>
         {weekLoaded && (
           <ExpenseList
             date={selectedDate}

@@ -69,6 +69,9 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 - The strip is a day filter: exactly one day is always selected, and the list below shows only that day. Today is selected when the app opens.
 - Tapping a day selects it.
 - Prev/next arrows to move between weeks, keeping the same weekday selected (moved back to today if it would be in the future). Cannot go past the current week.
+- Swipe gestures (touch only) as a faster alternative to precise taps and reaching the arrows:
+  - Swipe the day content left/right for the next/previous day, crossing week boundaries. Cannot go past today.
+  - Swipe the strip left/right for the next/previous week, same as the arrows.
 
 **Expense list (below)**
 - Shows the selected day only: a heading (e.g. "Today · Oct 31") and that day's expenses, newest first.
