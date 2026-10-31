@@ -1,63 +1,23 @@
 import type { Category, Expense } from '../db/types'
-import { formatDate, relativeDayName, visibleDays } from '../lib/dates'
+import { formatDate, relativeDayName } from '../lib/dates'
 import { formatAmount } from '../lib/money'
 
-interface DayActions {
+interface Props {
+  /** The selected day. */
+  date: string
+  today: string
+  /** That day's expenses, in any order. */
+  expenses: Expense[]
+  isNoSpend: boolean
+  categoriesById: Map<string, Category>
+  currency: string
   onAdd(date: string): void
   onEdit(expense: Expense): void
   onMarkNoSpend(date: string): void
   onUnmarkNoSpend(date: string): void
 }
 
-interface Props extends DayActions {
-  weekStart: string
-  today: string
-  expenses: Expense[]
-  noSpendDates: Set<string>
-  categoriesById: Map<string, Category>
-  currency: string
-}
-
-function groupByDate(expenses: Expense[]): Map<string, Expense[]> {
-  const groups = new Map<string, Expense[]>()
-  for (const e of expenses) {
-    const group = groups.get(e.date)
-    if (group) group.push(e)
-    else groups.set(e.date, [e])
-  }
-  for (const group of groups.values()) group.sort((a, b) => b.createdAt - a.createdAt)
-  return groups
-}
-
-export function ExpenseList({ weekStart, today, expenses, noSpendDates, ...rest }: Props) {
-  const byDate = groupByDate(expenses)
-
-  return (
-    <div className="days">
-      {visibleDays(weekStart, today).map((date) => (
-        <DaySection
-          key={date}
-          date={date}
-          today={today}
-          expenses={byDate.get(date) ?? []}
-          isNoSpend={noSpendDates.has(date)}
-          {...rest}
-        />
-      ))}
-    </div>
-  )
-}
-
-interface DaySectionProps extends DayActions {
-  date: string
-  today: string
-  expenses: Expense[]
-  isNoSpend: boolean
-  categoriesById: Map<string, Category>
-  currency: string
-}
-
-function DaySection({
+export function ExpenseList({
   date,
   today,
   expenses,
@@ -68,18 +28,19 @@ function DaySection({
   onEdit,
   onMarkNoSpend,
   onUnmarkNoSpend,
-}: DaySectionProps) {
+}: Props) {
   const relative = relativeDayName(date, today)
+  const sorted = [...expenses].sort((a, b) => b.createdAt - a.createdAt)
 
   return (
-    <section className="day" id={`day-${date}`} aria-labelledby={`day-${date}-heading`}>
-      <h2 className="day-heading" id={`day-${date}-heading`}>
+    <section className="day" aria-labelledby="day-heading">
+      <h2 className="day-heading" id="day-heading">
         <span>{relative ?? formatDate(date, { weekday: 'long' })}</span>
         <span className="day-date">{formatDate(date, { day: 'numeric', month: 'short' })}</span>
       </h2>
-      {expenses.length > 0 ? (
+      {sorted.length > 0 ? (
         <ul className="expense-list">
-          {expenses.map((e) => (
+          {sorted.map((e) => (
             <li key={e.id}>
               <ExpenseRow
                 expense={e}

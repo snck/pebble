@@ -54,11 +54,10 @@ export function isCurrentWeek(weekStart: string, today: string): boolean {
   return weekStart === startOfWeek(today)
 }
 
-/** Days of the week that have already happened (incl. today), newest first. */
-export function visibleDays(weekStart: string, today: string): string[] {
-  return weekDays(weekStart)
-    .filter((d) => !isFuture(d, today))
-    .reverse()
+/** The same weekday `weeks` weeks away, moved back to today if that's in the future. */
+export function shiftWeeks(iso: string, weeks: number, today: string): string {
+  const shifted = addDays(iso, weeks * 7)
+  return isFuture(shifted, today) ? today : shifted
 }
 
 /** Milliseconds until the next local midnight. */

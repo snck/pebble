@@ -15,44 +15,36 @@ import {
 import type { Expense, ExpenseInput } from './db/types'
 import { useCategories, useSettings, useWeekExpenses, useWeekNoSpend } from './hooks/data'
 import { useToday } from './hooks/useToday'
-import { addDays, isInWeek, startOfWeek } from './lib/dates'
+import { shiftWeeks, startOfWeek } from './lib/dates'
 
 export default function App() {
   const today = useToday()
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(today))
+  const [selectedDate, setSelectedDate] = useState(today)
   const [prevToday, setPrevToday] = useState(today)
   const [deleted, setDeleted] = useState<Expense | null>(null)
   const sheetRef = useRef<ExpenseSheetHandle>(null)
 
+  const weekStart = startOfWeek(selectedDate)
   const expenses = useWeekExpenses(weekStart)
   const noSpendDates = useWeekNoSpend(weekStart)
   const categories = useCategories()
   const settings = useSettings()
 
-  // If the app stays open past midnight into a new week, follow along when
-  // the user was looking at the current week.
+  // If the app stays open past midnight with today selected, follow along.
   if (today !== prevToday) {
     setPrevToday(today)
-    if (weekStart === startOfWeek(prevToday)) setWeekStart(startOfWeek(today))
+    if (selectedDate === prevToday) setSelectedDate(today)
   }
 
-  function goToWeek(start: string) {
-    setWeekStart(start)
+  function selectDate(date: string) {
+    setSelectedDate(date)
     window.scrollTo({ top: 0, behavior: 'instant' })
-  }
-
-  function showDate(date: string) {
-    if (!isInWeek(date, weekStart)) goToWeek(startOfWeek(date))
-  }
-
-  function scrollToDay(date: string) {
-    document.getElementById(`day-${date}`)?.scrollIntoView({ block: 'start' })
   }
 
   async function handleSave(input: ExpenseInput, id?: string) {
     if (id) await updateExpense(id, input)
     else await addExpense(input)
-    showDate(input.date)
+    selectDate(input.date)
   }
 
   async function handleDelete(id: string) {
@@ -64,7 +56,7 @@ export default function App() {
     if (!deleted) return
     setDeleted(null)
     await restoreExpense(deleted)
-    showDate(deleted.date)
+    selectDate(deleted.date)
   }
 
   const dismissToast = useCallback(() => setDeleted(null), [])
@@ -79,16 +71,17 @@ export default function App() {
         <WeekNav
           weekStart={weekStart}
           today={today}
-          onPrev={() => goToWeek(addDays(weekStart, -7))}
-          onNext={() => goToWeek(addDays(weekStart, 7))}
+          onPrev={() => selectDate(shiftWeeks(selectedDate, -1, today))}
+          onNext={() => selectDate(shiftWeeks(selectedDate, 1, today))}
         />
         {weekLoaded && (
           <WeekStrip
             weekStart={weekStart}
             today={today}
+            selectedDate={selectedDate}
             loggedDates={new Set(expenses.map((e) => e.date))}
             noSpendDates={noSpendDates}
-            onSelect={scrollToDay}
+            onSelect={selectDate}
           />
         )}
       </header>
@@ -96,10 +89,10 @@ export default function App() {
       <main>
         {weekLoaded && (
           <ExpenseList
-            weekStart={weekStart}
+            date={selectedDate}
             today={today}
-            expenses={expenses}
-            noSpendDates={noSpendDates}
+            expenses={expenses.filter((e) => e.date === selectedDate)}
+            isNoSpend={noSpendDates.has(selectedDate)}
             categoriesById={categories.byId}
             currency={settings.currency}
             onAdd={(date) => sheetRef.current?.open({ mode: 'add', date })}
@@ -114,7 +107,7 @@ export default function App() {
         type="button"
         className="fab"
         aria-label="Add expense"
-        onClick={() => sheetRef.current?.open({ mode: 'add', date: today })}
+        onClick={() => sheetRef.current?.open({ mode: 'add', date: selectedDate })}
       >
         +
       </button>

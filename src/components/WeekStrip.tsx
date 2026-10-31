@@ -4,6 +4,7 @@ import { dayState, type DayState } from '../lib/dayState'
 interface Props {
   weekStart: string
   today: string
+  selectedDate: string
   loggedDates: Set<string>
   noSpendDates: Set<string>
   onSelect(date: string): void
@@ -16,19 +17,21 @@ const STATE_LABEL: Record<DayState, string> = {
   unlogged: 'nothing logged',
 }
 
-export function WeekStrip({ weekStart, today, loggedDates, noSpendDates, onSelect }: Props) {
+export function WeekStrip({ weekStart, today, selectedDate, loggedDates, noSpendDates, onSelect }: Props) {
   return (
     <nav className="week-strip" aria-label="Days of the week">
       {weekDays(weekStart).map((date) => {
         const state = dayState(date, today, loggedDates.has(date), noSpendDates.has(date))
         const isToday = date === today
+        const isSelected = date === selectedDate
         const label = formatDate(date, { weekday: 'long', day: 'numeric', month: 'long' })
         return (
           <button
             key={date}
             type="button"
-            className={`strip-day state-${state}${isToday ? ' is-today' : ''}`}
+            className={`strip-day state-${state}${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`}
             disabled={state === 'future'}
+            aria-pressed={isSelected}
             aria-current={isToday ? 'date' : undefined}
             aria-label={`${isToday ? 'Today, ' : ''}${label}, ${STATE_LABEL[state]}`}
             onClick={() => onSelect(date)}

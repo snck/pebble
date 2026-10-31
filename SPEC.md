@@ -65,15 +65,18 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
   - **Unlogged past day**: neutral, empty. *Not* red, not a warning.
   - **Today**: highlighted ring, combined with one of the states above
   - **Future**: dimmed, not tappable
-- Tapping a day scrolls the list below to that day's section.
-- Prev/next arrows to move between weeks. Cannot go past the current week.
+  - **Selected**: filled highlight, combined with any of the states above
+- The strip is a day filter: exactly one day is always selected, and the list below shows only that day. Today is selected when the app opens.
+- Tapping a day selects it.
+- Prev/next arrows to move between weeks, keeping the same weekday selected (moved back to today if it would be in the future). Cannot go past the current week.
 
 **Expense list (below)**
-- Grouped by date, newest day first, showing every day of the week up to today (future days hidden).
+- Shows the selected day only: a heading (e.g. "Today · Oct 31") and that day's expenses, newest first.
 - Each expense row: category (emoji + name), note if present, amount.
 - **No daily or weekly totals anywhere.**
 - A day with no expenses shows an empty state with two actions: "Add expense" and "Mark as no-spend day".
-- A no-spend day shows a small positive message and an option to unmark it.
+- A no-spend day shows a small positive message, plus "Add expense" and an option to unmark it.
+- After saving an expense (or undoing a delete), its date becomes the selected day.
 
 **Add button**
 - Floating action button, always visible.
@@ -81,7 +84,7 @@ Food & drinks, Transport, Shopping, Entertainment, Health, Bills & utilities (fi
 ### 2. Add / edit expense sheet
 
 - Opens as a bottom sheet.
-- Field order: **amount** (autofocused, numeric keypad) → **category** (one-tap chips) → **date** (defaults to today, or to the day the sheet was opened from) → **note** (optional).
+- Field order: **amount** (autofocused, numeric keypad) → **category** (one-tap chips) → **date** (defaults to the selected day) → **note** (optional).
 - Save is a single tap. Sheet closes and the list shows the new entry.
 - Edit: tap an expense row to open the same sheet pre-filled.
 - Delete: from the edit sheet, with an **undo toast** (not a confirm dialog, which adds friction).
@@ -125,7 +128,7 @@ Trade-off: local-only storage means data doesn't sync between devices. Export/im
 ## Build milestones
 
 1. **Core logging**: data layer, add/edit/delete sheet, this-week list grouped by date, week navigation.
-2. **Calendar strip**: day states, tap-to-scroll, no-spend marking and its rules.
+2. **Calendar strip**: day states, day selection as a list filter, no-spend marking and its rules.
 3. **Report**: proportional bars, fixed-cost toggle, entry count, category drill-down, month selector.
 4. **Polish & ship**: settings/categories, last-month comparison, export/import, PWA install, deploy.
 

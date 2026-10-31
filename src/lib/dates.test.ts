@@ -8,9 +8,9 @@ import {
   msUntilNextDay,
   relativeDayName,
   relativeWeekName,
+  shiftWeeks,
   startOfWeek,
   toISO,
-  visibleDays,
   weekDays,
 } from './dates'
 
@@ -99,15 +99,21 @@ describe('week membership', () => {
   })
 })
 
-describe('visibleDays', () => {
-  it('hides future days and lists newest first', () => {
-    expect(visibleDays('2026-10-26', '2026-10-28')).toEqual(['2026-10-28', '2026-10-27', '2026-10-26'])
+describe('shiftWeeks', () => {
+  it('keeps the weekday when moving between weeks', () => {
+    expect(shiftWeeks('2026-10-29', -1, '2026-10-31')).toBe('2026-10-22')
+    expect(shiftWeeks('2026-10-22', 1, '2026-10-31')).toBe('2026-10-29')
+    expect(shiftWeeks('2026-10-29', -3, '2026-10-31')).toBe('2026-10-08')
   })
 
-  it('shows the whole week for past weeks', () => {
-    const days = visibleDays('2026-10-19', '2026-10-31')
-    expect(days).toHaveLength(7)
-    expect(days[0]).toBe('2026-10-25')
+  it('moves back to today rather than landing in the future', () => {
+    // Sunday of last week -> Sunday this week is tomorrow.
+    expect(shiftWeeks('2026-10-25', 1, '2026-10-31')).toBe('2026-10-31')
+    expect(shiftWeeks('2026-10-31', 1, '2026-10-31')).toBe('2026-10-31')
+  })
+
+  it('crosses a year boundary', () => {
+    expect(shiftWeeks('2027-01-01', -1, '2027-01-05')).toBe('2026-12-25')
   })
 })
 
