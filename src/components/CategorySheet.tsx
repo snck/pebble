@@ -33,7 +33,7 @@ export function CategorySheet({ category, monthLabel, expenses, currency, onClos
       className="tall-sheet"
     >
       <p className="sheet-subtitle">{monthLabel}</p>
-      <ul className="expense-list sheet-scroll">
+      <ul className="expense-list">
         {sorted.map((e) => (
           <li key={e.id} className="expense-row">
             <span className="expense-text">

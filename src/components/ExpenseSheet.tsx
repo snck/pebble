@@ -1,6 +1,7 @@
-import { useImperativeHandle, useRef, useState, type CSSProperties, type FormEvent, type Ref } from 'react'
+import { useImperativeHandle, useRef, useState, type FormEvent, type Ref } from 'react'
 import type { Category, Expense, ExpenseInput } from '../db/types'
-import { useKeyboardInset } from '../hooks/useKeyboardInset'
+import { useScrollLock } from '../hooks/useScrollLock'
+import { sheetViewportStyle, useVisualViewport } from '../hooks/useVisualViewport'
 import { currencySymbol, parseAmount, toAmountInput } from '../lib/money'
 
 export type SheetTarget = { mode: 'add'; date: string } | { mode: 'edit'; expense: Expense }
@@ -31,7 +32,9 @@ export function ExpenseSheet({ ref, categories, categoriesById, currency, today,
 
   const sheetRef = useRef<HTMLDivElement>(null)
   const amountRef = useRef<HTMLInputElement>(null)
-  const keyboardInset = useKeyboardInset()
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const viewport = useVisualViewport()
+  useScrollLock(isOpen)
 
   // The sheet stays mounted so `open` can focus the amount field synchronously
   // inside the tap handler; iOS only raises the keyboard for a focus that
@@ -51,6 +54,7 @@ export function ExpenseSheet({ ref, categories, categoriesById, currency, today,
         setNote(next.expense.note ?? '')
       }
       setIsOpen(true)
+      bodyRef.current?.scrollTo(0, 0) // it stays mounted, so undo last time's scroll
       if (sheetRef.current) sheetRef.current.inert = false
       if (next.mode === 'add') amountRef.current?.focus({ preventScroll: true })
     },
@@ -81,8 +85,8 @@ export function ExpenseSheet({ ref, categories, categoriesById, currency, today,
       <div className={`backdrop${isOpen ? ' is-open' : ''}`} onClick={close} aria-hidden="true" />
       <div
         ref={sheetRef}
-        className={`sheet${isOpen ? ' is-open' : ''}`}
-        style={{ '--kb': `${keyboardInset}px` } as CSSProperties}
+        className={`sheet expense-sheet${isOpen ? ' is-open' : ''}${viewport.keyboardInset > 0 ? ' has-keyboard' : ''}`}
+        style={sheetViewportStyle(viewport)}
         role="dialog"
         aria-modal="true"
         aria-labelledby="sheet-title"
@@ -125,36 +129,39 @@ export function ExpenseSheet({ ref, categories, categoriesById, currency, today,
             />
           </label>
 
-          <div className="chips" role="radiogroup" aria-label="Category">
-            {chips.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                role="radio"
-                aria-checked={c.id === categoryId}
-                className={`chip${c.id === categoryId ? ' is-selected' : ''}`}
-                onClick={() => setCategoryId(c.id)}
-              >
-                {c.emoji && <span aria-hidden="true">{c.emoji}</span>} {c.name}
-              </button>
-            ))}
-          </div>
+          {/* Header, amount and Save stay put; this part scrolls if the keyboard leaves too little room. */}
+          <div ref={bodyRef} className="sheet-body">
+            <div className="chips" role="radiogroup" aria-label="Category">
+              {chips.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={c.id === categoryId}
+                  className={`chip${c.id === categoryId ? ' is-selected' : ''}`}
+                  onClick={() => setCategoryId(c.id)}
+                >
+                  {c.emoji && <span aria-hidden="true">{c.emoji}</span>} {c.name}
+                </button>
+              ))}
+            </div>
 
-          <div className="sheet-row">
-            <input
-              type="date"
-              aria-label="Date"
-              value={date}
-              max={today}
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <input
-              type="text"
-              aria-label="Note"
-              placeholder="Note (optional)"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
+            <div className="sheet-row">
+              <input
+                type="date"
+                aria-label="Date"
+                value={date}
+                max={today}
+                onChange={(e) => setDate(e.target.value)}
+              />
+              <input
+                type="text"
+                aria-label="Note"
+                placeholder="Note (optional)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </div>
           </div>
 
           <button type="submit" className="save-button" disabled={!canSave}>

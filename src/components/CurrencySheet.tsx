@@ -33,19 +33,21 @@ export function CurrencySheet({ current, onClose }: Props) {
       onClose={onClose}
       className="tall-sheet"
     >
-      <input
-        type="search"
-        className="text-input"
-        placeholder="Search currencies"
-        aria-label="Search currencies"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="sheet-search">
+        <input
+          type="search"
+          className="text-input"
+          placeholder="Search currencies"
+          aria-label="Search currencies"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
       <p className="field-hint sheet-note">
         Amounts you've logged keep the numbers you typed. Switching to a currency without decimals rounds
         them to whole numbers.
       </p>
-      <ul className="settings-list sheet-scroll">
+      <ul className="settings-list">
         {options.map((c) => (
           <li key={c.code}>
             <button

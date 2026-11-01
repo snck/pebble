@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react'
-import { useKeyboardInset } from '../hooks/useKeyboardInset'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useScrollLock } from '../hooks/useScrollLock'
+import { sheetViewportStyle, useVisualViewport } from '../hooks/useVisualViewport'
 
 interface Props {
   title: ReactNode
@@ -14,12 +15,14 @@ interface Props {
 
 /**
  * A bottom sheet that is mounted while open (it slides in on mount). Closes on
- * backdrop tap or Escape, and stays above the on-screen keyboard.
+ * backdrop tap or Escape. It stays above the on-screen keyboard and never gets
+ * taller than the space left: the header stays put and the body scrolls.
  */
 export function Sheet({ title, start, end, onClose, className = '', children }: Props) {
   const titleId = useId()
   const ref = useRef<HTMLDivElement>(null)
-  const keyboardInset = useKeyboardInset()
+  const viewport = useVisualViewport()
+  useScrollLock(true)
 
   useEffect(() => {
     // Move focus into the sheet, unless a child (an autofocused input) already has it.
@@ -34,8 +37,8 @@ export function Sheet({ title, start, end, onClose, className = '', children }: 
       <div
         ref={ref}
         tabIndex={-1}
-        className={`sheet is-open slide-in ${className}`}
-        style={{ '--kb': `${keyboardInset}px` } as CSSProperties}
+        className={`sheet is-open slide-in${viewport.keyboardInset > 0 ? ' has-keyboard' : ''} ${className}`}
+        style={sheetViewportStyle(viewport)}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -46,7 +49,7 @@ export function Sheet({ title, start, end, onClose, className = '', children }: 
           <h2 id={titleId}>{title}</h2>
           {end ?? spacer}
         </div>
-        {children}
+        <div className="sheet-body">{children}</div>
       </div>
     </>
   )
